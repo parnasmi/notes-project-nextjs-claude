@@ -1,7 +1,8 @@
 {
-    "permissions": {
-        "allow": [
-         "Bash (tree:*)"
-        ]
-    }
+  "permissions": {
+    "allow": [
+      "Bash (tree:*)",
+      "mcp__context7__resolve-library-id"
+    ]
+  }
 }
