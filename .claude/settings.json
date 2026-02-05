@@ -1,0 +1,19 @@
+{
+  "default_model": "gemini-claude-sonnet-4-5-thinking",
+  "models": {
+    "claude-sonnet": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest"
+    }
+  },
+  "code": {
+    "auto_explain": false,
+    "auto_refactor": false,
+    "prefer_diff": true,
+    "format_on_generate": true
+  },
+  "thinking": {
+    "enabled": true,
+    "depth": "high"
+  }
+}
