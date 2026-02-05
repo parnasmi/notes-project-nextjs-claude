@@ -3,7 +3,7 @@
   "models": {
     "claude-sonnet": {
       "provider": "anthropic",
-      "model": "claude-3-5-sonnet-latest"
+      "model":  "claude-3-5-sonnet-latest"
     }
   },
   "code": {
