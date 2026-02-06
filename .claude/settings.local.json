@@ -10,7 +10,8 @@
       "WebFetch(domain:www.better-auth.com)",
       "WebFetch(domain:better-auth.com)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(git rm --cached .DS_Store .claude/.DS_Store)"
     ]
   }
 }

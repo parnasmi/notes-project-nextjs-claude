@@ -7,13 +7,13 @@ export default function Home() {
       <p className="text-gray-600 mb-8">A local-first, self-hosted note-taking app</p>
       <div className="flex gap-4">
         <Link
-          href="/sign-in"
+          href="/auth"
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Sign In
         </Link>
         <Link
-          href="/sign-up"
+          href="/auth?mode=signup"
           className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           Sign Up
