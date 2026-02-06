@@ -381,3 +381,26 @@ All actions:
 - Add `note_versions` table if versioning needed
 - Convert SQLite to Postgres if scaling later
 - Public notes could later allow comments
+
+## 16. TODO
+
+### High Priority
+
+- [ ] Implement server actions with session validation (createNote, updateNote, deleteNote, toggleShare, getUserNotes, getSharedNote)
+- [ ] Add ownership validation in all note mutation operations (edit/delete)
+- [ ] Configure baseURL in auth setup (lib/auth.ts) for production environment
+- [ ] Configure baseURL in auth client (lib/auth-client.ts)
+
+### Medium Priority
+
+- [ ] Add session expiration configuration to better-auth setup
+- [ ] Add error handling for database operations
+- [ ] Add trusted origins configuration for security
+- [ ] Consider database migration strategy for future schema changes
+
+### Implementation Gaps
+
+- [ ] Notes list page - fetch and display user's notes
+- [ ] Note editor page - implement TipTap editor with autosave
+- [ ] Shared note page - public read-only view
+- [ ] Authorization middleware/helpers for protected routes
