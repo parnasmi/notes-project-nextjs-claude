@@ -1,4 +1,8 @@
-export default function NotesPage() {
+import { requireAuth } from "@/lib/session";
+
+export default async function NotesPage() {
+  await requireAuth();
+
   return (
     <div className="flex min-h-screen items-center justify-center p-8">
       <div className="text-center">

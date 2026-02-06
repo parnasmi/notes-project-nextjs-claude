@@ -1,6 +1,9 @@
+import { requireAuth } from "@/lib/session";
+
 type Params = Promise<{ id: string }>;
 
 export default async function NoteEditorPage({ params }: { params: Params }) {
+  await requireAuth();
   const { id } = await params;
 
   return (
