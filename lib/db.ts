@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, existsSync } from "fs";
 import { dirname } from "path";
 
-const dbPath = "./data/app.db";
+const dbPath = process.env.DB_PATH ?? "./data/app.db";
 
 // Ensure data directory exists
 const dataDir = dirname(dbPath);

@@ -11,7 +11,12 @@
       "WebFetch(domain:better-auth.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(git rm --cached .DS_Store .claude/.DS_Store)"
+      "Bash(git rm --cached .DS_Store .claude/.DS_Store)",
+      "Bash(bunx tsc --noEmit)",
+      "Bash(bunx tsc --noEmit lib/actions/notes.ts lib/db.ts)",
+      "Bash(timeout 10 bun dev)",
+      "Bash(bun build --dry-run)",
+      "Bash(bun next build)"
     ]
   }
 }
