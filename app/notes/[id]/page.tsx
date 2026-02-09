@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getNoteById } from '@/lib/actions/notes';
 import { NoteRenderer } from '@/app/components/NoteRenderer';
 import { DeleteNoteButton } from '@/app/components/DeleteNoteButton';
+import { ShareToggle } from '@/app/components/ShareToggle';
 
 type Params = Promise<{ id: string }>;
 
@@ -21,6 +22,11 @@ export default async function NoteViewerPage({ params }: { params: Params }) {
           &larr; Back to notes
         </Link>
         <div className='flex gap-2'>
+          <ShareToggle
+            noteId={id}
+            initialIsShared={note.is_shared === 1}
+            initialSlug={note.shared_slug}
+          />
           <Link
             href={`/notes/${id}/edit`}
             className='rounded-md bg-gray-600 px-4 py-2 text-white hover:bg-gray-700'

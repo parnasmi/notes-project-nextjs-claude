@@ -172,7 +172,7 @@ export type Note = {
   title: string;
   content_json: string;
   is_shared: number;
-  share_slug: string | null;
+  shared_slug: string | null;
   created_at: number;
   updated_at: number;
 };
@@ -265,4 +265,52 @@ export async function deleteNote(id: string) {
   }
 
   redirect('/notes');
+}
+
+export async function toggleShare(id: string) {
+  const session = await requireAuth();
+
+  // Get current note state
+  const getStmt = db.prepare('SELECT is_shared FROM notes WHERE id = ? AND user_id = ?');
+  const note = getStmt.get(id, session.user.id) as { is_shared: number } | undefined;
+
+  if (!note) {
+    return { error: "Note not found or you don't have permission." };
+  }
+
+  const now = Date.now();
+
+  if (note.is_shared) {
+    // Turn off sharing
+    const stmt = db.prepare(`
+      UPDATE notes SET is_shared = 0, shared_slug = NULL, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+    stmt.run(now, id, session.user.id);
+    return { is_shared: false, shared_slug: null };
+  } else {
+    // Turn on sharing with new slug
+    const slug = crypto.randomUUID().slice(0, 12);
+    const stmt = db.prepare(`
+      UPDATE notes SET is_shared = 1, shared_slug = ?, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+    stmt.run(slug, now, id, session.user.id);
+    return { is_shared: true, shared_slug: slug };
+  }
+}
+
+export type SharedNote = {
+  title: string;
+  content_json: string;
+};
+
+export async function getSharedNote(slug: string): Promise<SharedNote | null> {
+  const stmt = db.prepare(`
+    SELECT title, content_json FROM notes
+    WHERE shared_slug = ? AND is_shared = 1
+  `);
+
+  const note = stmt.get(slug) as SharedNote | undefined;
+  return note ?? null;
 }
