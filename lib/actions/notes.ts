@@ -207,3 +207,73 @@ export async function getNoteById(id: string): Promise<Note | null> {
   const note = stmt.get(id, session.user.id) as Note | undefined;
   return note ?? null;
 }
+
+const updateNoteSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(255, "Title must be 255 characters or less"),
+  contentJson: z
+    .string()
+    .max(1_000_000, "Note content is too large"),
+});
+
+export async function updateNote(
+  id: string,
+  data: { title: string; contentJson: string }
+) {
+  const session = await requireAuth();
+
+  const parsed = updateNoteSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const { title, contentJson } = parsed.data;
+
+  // Validate TipTap JSON structure
+  const tipTapResult = parseTipTapContent(contentJson);
+  if (!tipTapResult.valid) {
+    return { error: "Invalid note content format. Please try again." };
+  }
+
+  const sanitizedContent = JSON.stringify(tipTapResult.content);
+  const now = Date.now();
+
+  try {
+    const stmt = db.prepare(`
+      UPDATE notes SET title = ?, content_json = ?, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+
+    const result = stmt.run(title, sanitizedContent, now, id, session.user.id);
+    if (result.changes === 0) {
+      return { error: "Note not found or you don't have permission to edit it." };
+    }
+  } catch {
+    console.error("Failed to update note");
+    return { error: "Unable to update note. Please try again later." };
+  }
+
+  redirect(`/notes/${id}`);
+}
+
+export async function deleteNote(id: string) {
+  const session = await requireAuth();
+
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM notes WHERE id = ? AND user_id = ?
+    `);
+
+    const result = stmt.run(id, session.user.id);
+    if (result.changes === 0) {
+      return { error: "Note not found or you don't have permission to delete it." };
+    }
+  } catch {
+    console.error("Failed to delete note");
+    return { error: "Unable to delete note. Please try again later." };
+  }
+
+  redirect("/dashboard");
+}

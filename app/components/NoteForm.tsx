@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { createNote } from "@/lib/actions/notes";
+import { createNote, updateNote } from "@/lib/actions/notes";
 
 function ToolbarButton({
   onClick,
@@ -130,14 +130,26 @@ function Toolbar({ editor }: { editor: Editor | null }) {
   );
 }
 
-export function NoteForm() {
-  const [title, setTitle] = useState("");
+type NoteFormProps = {
+  mode?: "create" | "edit";
+  noteId?: string;
+  initialTitle?: string;
+  initialContent?: object;
+};
+
+export function NoteForm({
+  mode = "create",
+  noteId,
+  initialTitle = "",
+  initialContent,
+}: NoteFormProps) {
+  const [title, setTitle] = useState(initialTitle);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "",
+    content: initialContent ?? "",
     immediatelyRender: false,
   });
 
@@ -148,13 +160,25 @@ export function NoteForm() {
 
     const contentJson = JSON.stringify(editor?.getJSON() ?? {});
 
-    const result = await createNote({ title, contentJson });
+    const result =
+      mode === "edit" && noteId
+        ? await updateNote(noteId, { title, contentJson })
+        : await createNote({ title, contentJson });
 
     if (result?.error) {
       setError(result.error);
       setLoading(false);
     }
   }
+
+  const isEdit = mode === "edit";
+  const buttonText = isEdit
+    ? loading
+      ? "Saving..."
+      : "Save Changes"
+    : loading
+      ? "Creating..."
+      : "Create Note";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -195,7 +219,7 @@ export function NoteForm() {
         disabled={loading}
         className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Creating..." : "Create Note"}
+        {buttonText}
       </button>
     </form>
   );
