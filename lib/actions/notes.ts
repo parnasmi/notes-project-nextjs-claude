@@ -21,12 +21,7 @@ const ALLOWED_NODE_TYPES = new Set([
 ]);
 
 // Allowed TipTap mark types from StarterKit
-const ALLOWED_MARK_TYPES = new Set([
-  "bold",
-  "italic",
-  "strike",
-  "code",
-]);
+const ALLOWED_MARK_TYPES = new Set(["bold", "italic", "strike", "code"]);
 
 // Recursively validate TipTap JSON structure
 function validateTipTapNode(node: unknown): boolean {
@@ -65,7 +60,11 @@ function validateTipTapNode(node: unknown): boolean {
     // Only allow level attribute for headings
     for (const key of Object.keys(attrs)) {
       if (key === "level") {
-        if (typeof attrs.level !== "number" || attrs.level < 1 || attrs.level > 6) {
+        if (
+          typeof attrs.level !== "number" ||
+          attrs.level < 1 ||
+          attrs.level > 6
+        ) {
           return false;
         }
       } else if (key === "language") {
@@ -94,7 +93,10 @@ function validateTipTapNode(node: unknown): boolean {
 }
 
 // Parse and validate TipTap JSON content
-function parseTipTapContent(jsonString: string): { valid: boolean; content: unknown } {
+function parseTipTapContent(jsonString: string): {
+  valid: boolean;
+  content: unknown;
+} {
   try {
     const parsed = JSON.parse(jsonString);
 
@@ -122,9 +124,7 @@ const createNoteSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be 255 characters or less"),
-  contentJson: z
-    .string()
-    .max(1_000_000, "Note content is too large"),
+  contentJson: z.string().max(1_000_000, "Note content is too large"),
 });
 
 export async function createNote(data: { title: string; contentJson: string }) {
@@ -213,14 +213,12 @@ const updateNoteSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be 255 characters or less"),
-  contentJson: z
-    .string()
-    .max(1_000_000, "Note content is too large"),
+  contentJson: z.string().max(1_000_000, "Note content is too large"),
 });
 
 export async function updateNote(
   id: string,
-  data: { title: string; contentJson: string }
+  data: { title: string; contentJson: string },
 ) {
   const session = await requireAuth();
 
@@ -248,7 +246,9 @@ export async function updateNote(
 
     const result = stmt.run(title, sanitizedContent, now, id, session.user.id);
     if (result.changes === 0) {
-      return { error: "Note not found or you don't have permission to edit it." };
+      return {
+        error: "Note not found or you don't have permission to edit it.",
+      };
     }
   } catch {
     console.error("Failed to update note");
@@ -268,12 +268,14 @@ export async function deleteNote(id: string) {
 
     const result = stmt.run(id, session.user.id);
     if (result.changes === 0) {
-      return { error: "Note not found or you don't have permission to delete it." };
+      return {
+        error: "Note not found or you don't have permission to delete it.",
+      };
     }
   } catch {
     console.error("Failed to delete note");
     return { error: "Unable to delete note. Please try again later." };
   }
 
-  redirect("/dashboard");
+  redirect("/notes");
 }

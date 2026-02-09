@@ -17,12 +17,13 @@ export function DeleteNoteButton({ noteId }: { noteId: string }) {
 
   async function handleDelete() {
     setLoading(true);
-    closeDialog();
     const result = await deleteNote(noteId);
 
     if (result?.error) {
       alert(result.error);
       setLoading(false);
+    } else {
+      closeDialog();
     }
   }
 
