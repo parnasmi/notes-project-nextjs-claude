@@ -21,12 +21,7 @@ const ALLOWED_NODE_TYPES = new Set([
 ]);
 
 // Allowed TipTap mark types from StarterKit
-const ALLOWED_MARK_TYPES = new Set([
-  "bold",
-  "italic",
-  "strike",
-  "code",
-]);
+const ALLOWED_MARK_TYPES = new Set(["bold", "italic", "strike", "code"]);
 
 // Recursively validate TipTap JSON structure
 function validateTipTapNode(node: unknown): boolean {
@@ -65,7 +60,11 @@ function validateTipTapNode(node: unknown): boolean {
     // Only allow level attribute for headings
     for (const key of Object.keys(attrs)) {
       if (key === "level") {
-        if (typeof attrs.level !== "number" || attrs.level < 1 || attrs.level > 6) {
+        if (
+          typeof attrs.level !== "number" ||
+          attrs.level < 1 ||
+          attrs.level > 6
+        ) {
           return false;
         }
       } else if (key === "language") {
@@ -94,7 +93,10 @@ function validateTipTapNode(node: unknown): boolean {
 }
 
 // Parse and validate TipTap JSON content
-function parseTipTapContent(jsonString: string): { valid: boolean; content: unknown } {
+function parseTipTapContent(jsonString: string): {
+  valid: boolean;
+  content: unknown;
+} {
   try {
     const parsed = JSON.parse(jsonString);
 
@@ -122,9 +124,7 @@ const createNoteSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be 255 characters or less"),
-  contentJson: z
-    .string()
-    .max(1_000_000, "Note content is too large"),
+  contentJson: z.string().max(1_000_000, "Note content is too large"),
 });
 
 export async function createNote(data: { title: string; contentJson: string }) {
@@ -163,4 +163,119 @@ export async function createNote(data: { title: string; contentJson: string }) {
   }
 
   redirect(`/notes/${id}`);
+}
+
+// Types for note queries
+export type NoteSummary = {
+  id: string;
+  title: string;
+  created_at: number;
+  updated_at: number;
+};
+
+export type Note = {
+  id: string;
+  user_id: string;
+  title: string;
+  content_json: string;
+  is_shared: number;
+  share_slug: string | null;
+  created_at: number;
+  updated_at: number;
+};
+
+export async function getNotesByUser(): Promise<NoteSummary[]> {
+  const session = await requireAuth();
+
+  const stmt = db.prepare(`
+    SELECT id, title, created_at, updated_at
+    FROM notes
+    WHERE user_id = ?
+    ORDER BY updated_at DESC
+  `);
+
+  return stmt.all(session.user.id) as NoteSummary[];
+}
+
+export async function getNoteById(id: string): Promise<Note | null> {
+  const session = await requireAuth();
+
+  const stmt = db.prepare(`
+    SELECT * FROM notes WHERE id = ? AND user_id = ?
+  `);
+
+  const note = stmt.get(id, session.user.id) as Note | undefined;
+  return note ?? null;
+}
+
+const updateNoteSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(255, "Title must be 255 characters or less"),
+  contentJson: z.string().max(1_000_000, "Note content is too large"),
+});
+
+export async function updateNote(
+  id: string,
+  data: { title: string; contentJson: string },
+) {
+  const session = await requireAuth();
+
+  const parsed = updateNoteSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const { title, contentJson } = parsed.data;
+
+  // Validate TipTap JSON structure
+  const tipTapResult = parseTipTapContent(contentJson);
+  if (!tipTapResult.valid) {
+    return { error: "Invalid note content format. Please try again." };
+  }
+
+  const sanitizedContent = JSON.stringify(tipTapResult.content);
+  const now = Date.now();
+
+  try {
+    const stmt = db.prepare(`
+      UPDATE notes SET title = ?, content_json = ?, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+
+    const result = stmt.run(title, sanitizedContent, now, id, session.user.id);
+    if (result.changes === 0) {
+      return {
+        error: "Note not found or you don't have permission to edit it.",
+      };
+    }
+  } catch {
+    console.error("Failed to update note");
+    return { error: "Unable to update note. Please try again later." };
+  }
+
+  redirect(`/notes/${id}`);
+}
+
+export async function deleteNote(id: string) {
+  const session = await requireAuth();
+
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM notes WHERE id = ? AND user_id = ?
+    `);
+
+    const result = stmt.run(id, session.user.id);
+    if (result.changes === 0) {
+      return {
+        error: "Note not found or you don't have permission to delete it.",
+      };
+    }
+  } catch {
+    console.error("Failed to delete note");
+    return { error: "Unable to delete note. Please try again later." };
+  }
+
+  redirect("/notes");
 }

@@ -16,7 +16,10 @@
       "Bash(bunx tsc --noEmit lib/actions/notes.ts lib/db.ts)",
       "Bash(timeout 10 bun dev)",
       "Bash(bun build --dry-run)",
-      "Bash(bun next build)"
+      "Bash(bun next build)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(bun run lint)",
+      "Bash(bun run build)"
     ]
   }
 }
