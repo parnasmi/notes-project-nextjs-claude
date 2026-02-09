@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { requireAuth } from "@/lib/session";
+import { getNotesByUser } from "@/lib/actions/notes";
 
 export default async function NotesPage() {
-  await requireAuth();
+  const notes = await getNotesByUser();
 
   return (
     <div>
@@ -15,7 +15,26 @@ export default async function NotesPage() {
           New Note
         </Link>
       </div>
-      <p className="text-gray-600">Your notes will appear here</p>
+
+      {notes.length === 0 ? (
+        <p className="text-gray-600">Your notes will appear here</p>
+      ) : (
+        <ul className="space-y-3">
+          {notes.map((note) => (
+            <li key={note.id}>
+              <Link
+                href={`/notes/${note.id}`}
+                className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <h2 className="font-medium text-gray-900">{note.title}</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Updated {new Date(note.updated_at).toLocaleDateString()}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

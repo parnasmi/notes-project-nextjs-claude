@@ -164,3 +164,46 @@ export async function createNote(data: { title: string; contentJson: string }) {
 
   redirect(`/notes/${id}`);
 }
+
+// Types for note queries
+export type NoteSummary = {
+  id: string;
+  title: string;
+  created_at: number;
+  updated_at: number;
+};
+
+export type Note = {
+  id: string;
+  user_id: string;
+  title: string;
+  content_json: string;
+  is_shared: number;
+  share_slug: string | null;
+  created_at: number;
+  updated_at: number;
+};
+
+export async function getNotesByUser(): Promise<NoteSummary[]> {
+  const session = await requireAuth();
+
+  const stmt = db.prepare(`
+    SELECT id, title, created_at, updated_at
+    FROM notes
+    WHERE user_id = ?
+    ORDER BY updated_at DESC
+  `);
+
+  return stmt.all(session.user.id) as NoteSummary[];
+}
+
+export async function getNoteById(id: string): Promise<Note | null> {
+  const session = await requireAuth();
+
+  const stmt = db.prepare(`
+    SELECT * FROM notes WHERE id = ? AND user_id = ?
+  `);
+
+  const note = stmt.get(id, session.user.id) as Note | undefined;
+  return note ?? null;
+}
