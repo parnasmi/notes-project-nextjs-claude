@@ -28,8 +28,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "oxfmt": "^0.28.0",
+    "playwright": "^1.58.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   },
   "ignoreScripts": [
     "sharp",

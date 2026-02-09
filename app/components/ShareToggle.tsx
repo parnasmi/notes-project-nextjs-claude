@@ -49,12 +49,17 @@ export function ShareToggle({ noteId, initialIsShared, initialSlug }: ShareToggl
       </button>
 
       {isShared && shareUrl && (
-        <button
-          onClick={handleCopy}
-          className='rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700'
-        >
-          {copied ? 'Copied!' : 'Copy Link'}
-        </button>
+        <>
+          <span className='text-sm text-gray-600 truncate max-w-xs' title={shareUrl}>
+            {shareUrl}
+          </span>
+          <button
+            onClick={handleCopy}
+            className='rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700'
+          >
+            {copied ? 'Copied!' : 'Copy Link'}
+          </button>
+        </>
       )}
     </div>
   );
