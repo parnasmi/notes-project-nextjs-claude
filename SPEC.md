@@ -10,34 +10,34 @@ Notes are rich-text documents built with TipTap, stored as JSON in a SQLite data
 
 ### Core
 
-| Component | Technology |
-|-----------|------------|
+| Component | Technology           |
+| --------- | -------------------- |
 | Framework | Next.js (App Router) |
-| Runtime | Bun |
-| Language | TypeScript |
-| Styling | TailwindCSS |
+| Runtime   | Bun                  |
+| Language  | TypeScript           |
+| Styling   | TailwindCSS          |
 
 ### Auth
 
-| Component | Technology |
-|-----------|------------|
-| Authentication | better-auth |
-| Session model | Cookie-based (server-first) |
+| Component      | Technology                  |
+| -------------- | --------------------------- |
+| Authentication | better-auth                 |
+| Session model  | Cookie-based (server-first) |
 
 ### Editor
 
-| Component | Technology |
-|-----------|------------|
-| Rich Text Editor | TipTap |
-| Storage format | TipTap JSON document |
+| Component        | Technology           |
+| ---------------- | -------------------- |
+| Rich Text Editor | TipTap               |
+| Storage format   | TipTap JSON document |
 
 ### Database
 
-| Component | Technology |
-|-----------|------------|
-| DB | SQLite (file-based) |
-| Access | Bun built-in SQLite client |
-| Queries | Raw SQL (no ORM) |
+| Component | Technology                 |
+| --------- | -------------------------- |
+| DB        | SQLite (file-based)        |
+| Access    | Bun built-in SQLite client |
+| Queries   | Raw SQL (no ORM)           |
 
 ## 3. Architecture
 
@@ -63,6 +63,7 @@ SQLite (Bun)
 ### Authentication
 
 Users must be authenticated to:
+
 - Create notes
 - Edit notes
 - Delete notes
@@ -70,13 +71,13 @@ Users must be authenticated to:
 
 ### Authorization Rules
 
-| Action | Auth Required | Ownership Required |
-|--------|---------------|-------------------|
-| Create note | Yes | — |
-| Edit note | Yes | Yes |
-| Delete note | Yes | Yes |
-| View private note | Yes | Yes |
-| View shared note | No | No |
+| Action            | Auth Required | Ownership Required |
+| ----------------- | ------------- | ------------------ |
+| Create note       | Yes           | —                  |
+| Edit note         | Yes           | Yes                |
+| Delete note       | Yes           | Yes                |
+| View private note | Yes           | Yes                |
+| View shared note  | No            | No                 |
 
 ## 5. Note Sharing Model
 
@@ -85,6 +86,7 @@ Users must be authenticated to:
 Sharing generates a random, unguessable public slug.
 
 Example:
+
 ```
 /share/9f3k2a7mLq
 ```
@@ -98,6 +100,7 @@ Example:
 ### Unsharing
 
 When sharing is disabled:
+
 - The public link returns `404 Not Found`
 - (Security-friendly, avoids leaking existence)
 
@@ -106,12 +109,14 @@ When sharing is disabled:
 ### Autosave on debounce
 
 Suggested behavior:
+
 - Save after 1–2s of inactivity
 - Also save on:
   - Page unload
   - Route change
 
 ### UI shows:
+
 - "Saving…"
 - "Saved"
 - "Error saving"
@@ -138,15 +143,15 @@ CREATE TABLE user (
 );
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | TEXT | Unique identifier for each user (primary key) |
-| name | TEXT | User's chosen display name |
-| email | TEXT | User's email address for communication and login |
-| email_verified | INTEGER | Whether the user's email is verified (0 or 1) |
-| image | TEXT | User's image URL (optional) |
-| created_at | INTEGER | Unix timestamp of when the user account was created |
-| updated_at | INTEGER | Unix timestamp of the last update to the user's information |
+| Field          | Type    | Description                                                 |
+| -------------- | ------- | ----------------------------------------------------------- |
+| id             | TEXT    | Unique identifier for each user (primary key)               |
+| name           | TEXT    | User's chosen display name                                  |
+| email          | TEXT    | User's email address for communication and login            |
+| email_verified | INTEGER | Whether the user's email is verified (0 or 1)               |
+| image          | TEXT    | User's image URL (optional)                                 |
+| created_at     | INTEGER | Unix timestamp of when the user account was created         |
+| updated_at     | INTEGER | Unix timestamp of the last update to the user's information |
 
 #### Session Table
 
@@ -170,16 +175,16 @@ CREATE INDEX idx_session_user_id ON session(user_id);
 CREATE INDEX idx_session_token ON session(token);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | TEXT | Unique identifier for each session (primary key) |
-| user_id | TEXT | The ID of the user (foreign key) |
-| token | TEXT | The unique session token |
-| expires_at | INTEGER | Unix timestamp when the session expires |
-| ip_address | TEXT | The IP address of the device (optional) |
-| user_agent | TEXT | The user agent information of the device (optional) |
-| created_at | INTEGER | Unix timestamp of when the session was created |
-| updated_at | INTEGER | Unix timestamp of when the session was updated |
+| Field      | Type    | Description                                         |
+| ---------- | ------- | --------------------------------------------------- |
+| id         | TEXT    | Unique identifier for each session (primary key)    |
+| user_id    | TEXT    | The ID of the user (foreign key)                    |
+| token      | TEXT    | The unique session token                            |
+| expires_at | INTEGER | Unix timestamp when the session expires             |
+| ip_address | TEXT    | The IP address of the device (optional)             |
+| user_agent | TEXT    | The user agent information of the device (optional) |
+| created_at | INTEGER | Unix timestamp of when the session was created      |
+| updated_at | INTEGER | Unix timestamp of when the session was updated      |
 
 #### Account Table
 
@@ -207,21 +212,21 @@ CREATE TABLE account (
 CREATE INDEX idx_account_user_id ON account(user_id);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | TEXT | Unique identifier for each account (primary key) |
-| user_id | TEXT | The ID of the user (foreign key) |
-| account_id | TEXT | The ID of the account as provided by SSO, or equal to userId for credential accounts |
-| provider_id | TEXT | The ID of the provider (e.g., "credential", "google", "github") |
-| access_token | TEXT | The access token returned by the provider (optional) |
-| refresh_token | TEXT | The refresh token returned by the provider (optional) |
-| access_token_expires_at | INTEGER | Unix timestamp when the access token expires (optional) |
-| refresh_token_expires_at | INTEGER | Unix timestamp when the refresh token expires (optional) |
-| scope | TEXT | The scope of the account returned by the provider (optional) |
-| id_token | TEXT | The ID token returned from the provider (optional) |
-| password | TEXT | The hashed password for email/password authentication (optional) |
-| created_at | INTEGER | Unix timestamp of when the account was created |
-| updated_at | INTEGER | Unix timestamp of when the account was updated |
+| Field                    | Type    | Description                                                                          |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------ |
+| id                       | TEXT    | Unique identifier for each account (primary key)                                     |
+| user_id                  | TEXT    | The ID of the user (foreign key)                                                     |
+| account_id               | TEXT    | The ID of the account as provided by SSO, or equal to userId for credential accounts |
+| provider_id              | TEXT    | The ID of the provider (e.g., "credential", "google", "github")                      |
+| access_token             | TEXT    | The access token returned by the provider (optional)                                 |
+| refresh_token            | TEXT    | The refresh token returned by the provider (optional)                                |
+| access_token_expires_at  | INTEGER | Unix timestamp when the access token expires (optional)                              |
+| refresh_token_expires_at | INTEGER | Unix timestamp when the refresh token expires (optional)                             |
+| scope                    | TEXT    | The scope of the account returned by the provider (optional)                         |
+| id_token                 | TEXT    | The ID token returned from the provider (optional)                                   |
+| password                 | TEXT    | The hashed password for email/password authentication (optional)                     |
+| created_at               | INTEGER | Unix timestamp of when the account was created                                       |
+| updated_at               | INTEGER | Unix timestamp of when the account was updated                                       |
 
 #### Verification Table
 
@@ -240,12 +245,12 @@ CREATE TABLE verification (
 CREATE INDEX idx_verification_identifier ON verification(identifier);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | TEXT | Unique identifier for each verification (primary key) |
-| identifier | TEXT | The identifier for the verification request (e.g., email) |
-| value | TEXT | The value to be verified (e.g., verification token) |
-| expires_at | INTEGER | Unix timestamp when the verification request expires |
+| Field      | Type    | Description                                                 |
+| ---------- | ------- | ----------------------------------------------------------- |
+| id         | TEXT    | Unique identifier for each verification (primary key)       |
+| identifier | TEXT    | The identifier for the verification request (e.g., email)   |
+| value      | TEXT    | The value to be verified (e.g., verification token)         |
+| expires_at | INTEGER | Unix timestamp when the verification request expires        |
 | created_at | INTEGER | Unix timestamp of when the verification request was created |
 | updated_at | INTEGER | Unix timestamp of when the verification request was updated |
 
@@ -303,16 +308,17 @@ CREATE INDEX idx_notes_shared_slug ON notes(shared_slug);
 
 ### Server Actions (Recommended)
 
-| Action | Purpose |
-|--------|---------|
-| `createNote()` | Create new note |
-| `updateNote(id, content)` | Save changes |
-| `deleteNote(id)` | Delete note |
-| `toggleShare(id)` | Share / unshare note |
-| `getUserNotes()` | List user's notes |
-| `getSharedNote(slug)` | Public access |
+| Action                    | Purpose              |
+| ------------------------- | -------------------- |
+| `createNote()`            | Create new note      |
+| `updateNote(id, content)` | Save changes         |
+| `deleteNote(id)`          | Delete note          |
+| `toggleShare(id)`         | Share / unshare note |
+| `getUserNotes()`          | List user's notes    |
+| `getSharedNote(slug)`     | Public access        |
 
 All actions:
+
 - Validate session
 - Validate ownership where required
 - Use prepared SQL statements
@@ -351,13 +357,13 @@ All actions:
 
 ## 12. Error Handling & Edge Cases
 
-| Scenario | Response |
-|----------|----------|
-| Unauthorized access | 403 |
-| Missing note | 404 |
-| Invalid shared slug | 404 |
-| Autosave failure | Non-blocking UI error |
-| Deleted note | Redirect to `/notes` |
+| Scenario            | Response              |
+| ------------------- | --------------------- |
+| Unauthorized access | 403                   |
+| Missing note        | 404                   |
+| Invalid shared slug | 404                   |
+| Autosave failure    | Non-blocking UI error |
+| Deleted note        | Redirect to `/notes`  |
 
 ## 13. Local-First Considerations
 

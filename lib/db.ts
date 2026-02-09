@@ -1,8 +1,8 @@
-import { Database } from "bun:sqlite";
-import { mkdirSync, existsSync } from "fs";
-import { dirname } from "path";
+import { Database } from 'bun:sqlite';
+import { mkdirSync, existsSync } from 'fs';
+import { dirname } from 'path';
 
-const dbPath = process.env.DB_PATH ?? "./data/app.db";
+const dbPath = process.env.DB_PATH ?? './data/app.db';
 
 // Ensure data directory exists
 const dataDir = dirname(dbPath);
@@ -13,7 +13,7 @@ if (!existsSync(dataDir)) {
 const db = new Database(dbPath);
 
 // Enable WAL mode for better performance
-db.run("PRAGMA journal_mode = WAL;");
+db.run('PRAGMA journal_mode = WAL;');
 
 // Create authentication tables (better-auth)
 db.run(`

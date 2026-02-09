@@ -18,7 +18,7 @@ When given one or more technologies/libraries to look up:
 
 ## Lookup Strategy
 
-### Step 1: Context7 MCP (Primary) 
+### Step 1: Context7 MCP (Primary)
 
 For each library, call these in sequence:
 

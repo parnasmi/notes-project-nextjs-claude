@@ -12,6 +12,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 ## Project Overview
 
 A local-first, self-hosted note-taking web application with:
+
 - User authentication via better-auth
 - Rich-text editing with TipTap
 - Public note sharing via unguessable slugs

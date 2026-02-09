@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
 type TipTapMark = {
-  type: "bold" | "italic" | "strike" | "code";
+  type: 'bold' | 'italic' | 'strike' | 'code';
 };
 
 type TipTapNode = {
@@ -20,14 +20,14 @@ function renderMarks(text: string, marks?: TipTapMark[]): ReactNode {
 
   return marks.reduce<ReactNode>((acc, mark) => {
     switch (mark.type) {
-      case "bold":
+      case 'bold':
         return <strong>{acc}</strong>;
-      case "italic":
+      case 'italic':
         return <em>{acc}</em>;
-      case "strike":
+      case 'strike':
         return <s>{acc}</s>;
-      case "code":
-        return <code className="bg-gray-100 px-1 rounded text-sm">{acc}</code>;
+      case 'code':
+        return <code className='bg-gray-100 px-1 rounded text-sm'>{acc}</code>;
       default:
         return acc;
     }
@@ -38,21 +38,17 @@ function renderNode(node: TipTapNode, index: number): ReactNode {
   const key = index;
 
   switch (node.type) {
-    case "doc":
+    case 'doc':
       return (
-        <div key={key} className="prose prose-gray max-w-none">
+        <div key={key} className='prose prose-gray max-w-none'>
           {node.content?.map((child, i) => renderNode(child, i))}
         </div>
       );
 
-    case "paragraph":
-      return (
-        <p key={key}>
-          {node.content?.map((child, i) => renderNode(child, i)) ?? "\u00A0"}
-        </p>
-      );
+    case 'paragraph':
+      return <p key={key}>{node.content?.map((child, i) => renderNode(child, i)) ?? '\u00A0'}</p>;
 
-    case "heading": {
+    case 'heading': {
       const level = node.attrs?.level ?? 1;
       const children = node.content?.map((child, i) => renderNode(child, i));
       switch (level) {
@@ -73,53 +69,35 @@ function renderNode(node: TipTapNode, index: number): ReactNode {
       }
     }
 
-    case "bulletList":
+    case 'bulletList':
+      return <ul key={key}>{node.content?.map((child, i) => renderNode(child, i))}</ul>;
+
+    case 'orderedList':
+      return <ol key={key}>{node.content?.map((child, i) => renderNode(child, i))}</ol>;
+
+    case 'listItem':
+      return <li key={key}>{node.content?.map((child, i) => renderNode(child, i))}</li>;
+
+    case 'blockquote':
       return (
-        <ul key={key}>
-          {node.content?.map((child, i) => renderNode(child, i))}
-        </ul>
+        <blockquote key={key}>{node.content?.map((child, i) => renderNode(child, i))}</blockquote>
       );
 
-    case "orderedList":
+    case 'codeBlock':
       return (
-        <ol key={key}>
-          {node.content?.map((child, i) => renderNode(child, i))}
-        </ol>
-      );
-
-    case "listItem":
-      return (
-        <li key={key}>
-          {node.content?.map((child, i) => renderNode(child, i))}
-        </li>
-      );
-
-    case "blockquote":
-      return (
-        <blockquote key={key}>
-          {node.content?.map((child, i) => renderNode(child, i))}
-        </blockquote>
-      );
-
-    case "codeBlock":
-      return (
-        <pre key={key} className="bg-gray-100 p-4 rounded overflow-x-auto">
-          <code>
-            {node.content?.map((child, i) => renderNode(child, i))}
-          </code>
+        <pre key={key} className='bg-gray-100 p-4 rounded overflow-x-auto'>
+          <code>{node.content?.map((child, i) => renderNode(child, i))}</code>
         </pre>
       );
 
-    case "hardBreak":
+    case 'hardBreak':
       return <br key={key} />;
 
-    case "horizontalRule":
+    case 'horizontalRule':
       return <hr key={key} />;
 
-    case "text":
-      return (
-        <span key={key}>{renderMarks(node.text ?? "", node.marks)}</span>
-      );
+    case 'text':
+      return <span key={key}>{renderMarks(node.text ?? '', node.marks)}</span>;
 
     default:
       return null;
@@ -135,6 +113,6 @@ export function NoteRenderer({ contentJson }: NoteRendererProps) {
     const doc = JSON.parse(contentJson) as TipTapNode;
     return renderNode(doc, 0);
   } catch {
-    return <p className="text-gray-500">Unable to render note content.</p>;
+    return <p className='text-gray-500'>Unable to render note content.</p>;
   }
 }
