@@ -6,7 +6,8 @@
     "dev": "bun run --bun next dev",
     "build": "next build",
     "start": "bun run --bun next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "oxfmt --write"
   },
   "dependencies": {
     "@tiptap/pm": "^3.19.0",
@@ -26,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "oxfmt": "^0.28.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
