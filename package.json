@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "bun run --bun next start",
     "lint": "eslint",
-    "format": "oxfmt --write"
+    "format": "oxfmt --write",
+    "test": "vitest"
   },
   "dependencies": {
     "@tiptap/pm": "^3.19.0",
