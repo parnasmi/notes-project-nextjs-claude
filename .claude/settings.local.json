@@ -19,7 +19,14 @@
       "Bash(bun next build)",
       "Bash(npx tsc --noEmit)",
       "Bash(bun run lint)",
-      "Bash(bun run build)"
+      "Bash(bun run build)",
+      "Bash(claude mcp list)",
+      "Bash(claude tools)",
+      "Bash(bunx playwright --version)",
+      "Bash(bun add -d @playwright/test)",
+      "Bash(bun run e2e-test.ts)",
+      "Bash(bun add -d playwright)",
+      "Bash(bunx playwright install chromium)"
     ]
   }
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useEditor, EditorContent, type Editor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { createNote, updateNote } from "@/lib/actions/notes";
+import { useState } from 'react';
+import { useEditor, EditorContent, type Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { createNote, updateNote } from '@/lib/actions/notes';
 
 function ToolbarButton({
   onClick,
@@ -18,13 +18,11 @@ function ToolbarButton({
 }) {
   return (
     <button
-      type="button"
+      type='button'
       onClick={onClick}
       title={title}
       className={`rounded px-2 py-1 text-sm font-medium ${
-        isActive
-          ? "bg-gray-200 text-gray-900"
-          : "text-gray-600 hover:bg-gray-100"
+        isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'
       }`}
     >
       {children}
@@ -36,93 +34,93 @@ function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 border-b border-gray-200 p-2">
+    <div className='flex flex-wrap gap-1 border-b border-gray-200 p-2'>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
-        isActive={editor.isActive("bold")}
-        title="Bold"
+        isActive={editor.isActive('bold')}
+        title='Bold'
       >
         <strong>B</strong>
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        isActive={editor.isActive("italic")}
-        title="Italic"
+        isActive={editor.isActive('italic')}
+        title='Italic'
       >
         <em>I</em>
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleStrike().run()}
-        isActive={editor.isActive("strike")}
-        title="Strikethrough"
+        isActive={editor.isActive('strike')}
+        title='Strikethrough'
       >
         <s>S</s>
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleCode().run()}
-        isActive={editor.isActive("code")}
-        title="Inline Code"
+        isActive={editor.isActive('code')}
+        title='Inline Code'
       >
-        <code>{"<>"}</code>
+        <code>{'<>'}</code>
       </ToolbarButton>
 
-      <span className="mx-1 border-l border-gray-300" />
+      <span className='mx-1 border-l border-gray-300' />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        isActive={editor.isActive("heading", { level: 1 })}
-        title="Heading 1"
+        isActive={editor.isActive('heading', { level: 1 })}
+        title='Heading 1'
       >
         H1
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        isActive={editor.isActive("heading", { level: 2 })}
-        title="Heading 2"
+        isActive={editor.isActive('heading', { level: 2 })}
+        title='Heading 2'
       >
         H2
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        isActive={editor.isActive("heading", { level: 3 })}
-        title="Heading 3"
+        isActive={editor.isActive('heading', { level: 3 })}
+        title='Heading 3'
       >
         H3
       </ToolbarButton>
 
-      <span className="mx-1 border-l border-gray-300" />
+      <span className='mx-1 border-l border-gray-300' />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        isActive={editor.isActive("bulletList")}
-        title="Bullet List"
+        isActive={editor.isActive('bulletList')}
+        title='Bullet List'
       >
         • List
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        isActive={editor.isActive("orderedList")}
-        title="Numbered List"
+        isActive={editor.isActive('orderedList')}
+        title='Numbered List'
       >
         1. List
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        isActive={editor.isActive("blockquote")}
-        title="Blockquote"
+        isActive={editor.isActive('blockquote')}
+        title='Blockquote'
       >
         "
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        isActive={editor.isActive("codeBlock")}
-        title="Code Block"
+        isActive={editor.isActive('codeBlock')}
+        title='Code Block'
       >
-        {"{ }"}
+        {'{ }'}
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        title="Horizontal Rule"
+        title='Horizontal Rule'
       >
         ―
       </ToolbarButton>
@@ -131,37 +129,37 @@ function Toolbar({ editor }: { editor: Editor | null }) {
 }
 
 type NoteFormProps = {
-  mode?: "create" | "edit";
+  mode?: 'create' | 'edit';
   noteId?: string;
   initialTitle?: string;
   initialContent?: object;
 };
 
 export function NoteForm({
-  mode = "create",
+  mode = 'create',
   noteId,
-  initialTitle = "",
+  initialTitle = '',
   initialContent,
 }: NoteFormProps) {
   const [title, setTitle] = useState(initialTitle);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const editor = useEditor({
     extensions: [StarterKit],
-    content: initialContent ?? "",
+    content: initialContent ?? '',
     immediatelyRender: false,
   });
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     const contentJson = JSON.stringify(editor?.getJSON() ?? {});
 
     const result =
-      mode === "edit" && noteId
+      mode === 'edit' && noteId
         ? await updateNote(noteId, { title, contentJson })
         : await createNote({ title, contentJson });
 
@@ -171,53 +169,50 @@ export function NoteForm({
     }
   }
 
-  const isEdit = mode === "edit";
+  const isEdit = mode === 'edit';
   const buttonText = isEdit
     ? loading
-      ? "Saving..."
-      : "Save Changes"
+      ? 'Saving...'
+      : 'Save Changes'
     : loading
-      ? "Creating..."
-      : "Create Note";
+      ? 'Creating...'
+      : 'Create Note';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className='space-y-4'>
       <div>
-        <label htmlFor="title" className="block text-sm font-medium mb-1">
+        <label htmlFor='title' className='block text-sm font-medium mb-1'>
           Title
         </label>
         <input
-          id="title"
-          name="title"
-          type="text"
+          id='title'
+          name='title'
+          type='text'
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className='w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Content</label>
-        <div className="rounded-md border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+        <label className='block text-sm font-medium mb-1'>Content</label>
+        <div className='rounded-md border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500'>
           <Toolbar editor={editor} />
-          <EditorContent
-            editor={editor}
-            className="p-3 min-h-[200px] [&_.tiptap]:min-h-[176px]"
-          />
+          <EditorContent editor={editor} className='p-3 min-h-[200px] [&_.tiptap]:min-h-[176px]' />
         </div>
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role='alert' className='text-sm text-red-600'>
           {error}
         </p>
       )}
 
       <button
-        type="submit"
+        type='submit'
         disabled={loading}
-        className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className='rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
       >
         {buttonText}
       </button>

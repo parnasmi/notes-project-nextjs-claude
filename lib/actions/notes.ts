@@ -1,38 +1,38 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import { requireAuth } from "@/lib/session";
+import { z } from 'zod';
+import { redirect } from 'next/navigation';
+import { db } from '@/lib/db';
+import { requireAuth } from '@/lib/session';
 
 // Allowed TipTap node types from StarterKit
 const ALLOWED_NODE_TYPES = new Set([
-  "doc",
-  "paragraph",
-  "text",
-  "heading",
-  "bulletList",
-  "orderedList",
-  "listItem",
-  "blockquote",
-  "codeBlock",
-  "hardBreak",
-  "horizontalRule",
+  'doc',
+  'paragraph',
+  'text',
+  'heading',
+  'bulletList',
+  'orderedList',
+  'listItem',
+  'blockquote',
+  'codeBlock',
+  'hardBreak',
+  'horizontalRule',
 ]);
 
 // Allowed TipTap mark types from StarterKit
-const ALLOWED_MARK_TYPES = new Set(["bold", "italic", "strike", "code"]);
+const ALLOWED_MARK_TYPES = new Set(['bold', 'italic', 'strike', 'code']);
 
 // Recursively validate TipTap JSON structure
 function validateTipTapNode(node: unknown): boolean {
-  if (typeof node !== "object" || node === null) {
+  if (typeof node !== 'object' || node === null) {
     return false;
   }
 
   const n = node as Record<string, unknown>;
 
   // Check node type
-  if (typeof n.type !== "string" || !ALLOWED_NODE_TYPES.has(n.type)) {
+  if (typeof n.type !== 'string' || !ALLOWED_NODE_TYPES.has(n.type)) {
     return false;
   }
 
@@ -40,9 +40,9 @@ function validateTipTapNode(node: unknown): boolean {
   if (n.marks !== undefined) {
     if (!Array.isArray(n.marks)) return false;
     for (const mark of n.marks) {
-      if (typeof mark !== "object" || mark === null) return false;
+      if (typeof mark !== 'object' || mark === null) return false;
       const m = mark as Record<string, unknown>;
-      if (typeof m.type !== "string" || !ALLOWED_MARK_TYPES.has(m.type)) {
+      if (typeof m.type !== 'string' || !ALLOWED_MARK_TYPES.has(m.type)) {
         return false;
       }
     }
@@ -50,26 +50,22 @@ function validateTipTapNode(node: unknown): boolean {
 
   // Validate text content - strip any HTML tags for safety
   if (n.text !== undefined) {
-    if (typeof n.text !== "string") return false;
+    if (typeof n.text !== 'string') return false;
   }
 
   // Validate attrs if present (only allow safe attributes)
   if (n.attrs !== undefined) {
-    if (typeof n.attrs !== "object" || n.attrs === null) return false;
+    if (typeof n.attrs !== 'object' || n.attrs === null) return false;
     const attrs = n.attrs as Record<string, unknown>;
     // Only allow level attribute for headings
     for (const key of Object.keys(attrs)) {
-      if (key === "level") {
-        if (
-          typeof attrs.level !== "number" ||
-          attrs.level < 1 ||
-          attrs.level > 6
-        ) {
+      if (key === 'level') {
+        if (typeof attrs.level !== 'number' || attrs.level < 1 || attrs.level > 6) {
           return false;
         }
-      } else if (key === "language") {
+      } else if (key === 'language') {
         // Allow language for codeBlock
-        if (typeof attrs.language !== "string" && attrs.language !== null) {
+        if (typeof attrs.language !== 'string' && attrs.language !== null) {
           return false;
         }
       } else {
@@ -101,11 +97,11 @@ function parseTipTapContent(jsonString: string): {
     const parsed = JSON.parse(jsonString);
 
     // Must be an object with type "doc"
-    if (typeof parsed !== "object" || parsed === null) {
+    if (typeof parsed !== 'object' || parsed === null) {
       return { valid: false, content: null };
     }
 
-    if (parsed.type !== "doc") {
+    if (parsed.type !== 'doc') {
       return { valid: false, content: null };
     }
 
@@ -120,11 +116,8 @@ function parseTipTapContent(jsonString: string): {
 }
 
 const createNoteSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(255, "Title must be 255 characters or less"),
-  contentJson: z.string().max(1_000_000, "Note content is too large"),
+  title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or less'),
+  contentJson: z.string().max(1_000_000, 'Note content is too large'),
 });
 
 export async function createNote(data: { title: string; contentJson: string }) {
@@ -140,7 +133,7 @@ export async function createNote(data: { title: string; contentJson: string }) {
   // Validate TipTap JSON structure
   const tipTapResult = parseTipTapContent(contentJson);
   if (!tipTapResult.valid) {
-    return { error: "Invalid note content format. Please try again." };
+    return { error: 'Invalid note content format. Please try again.' };
   }
 
   // Re-serialize the validated content to ensure clean JSON
@@ -158,8 +151,8 @@ export async function createNote(data: { title: string; contentJson: string }) {
     stmt.run(id, session.user.id, title, sanitizedContent, now, now);
   } catch {
     // Log error internally but don't expose details to client
-    console.error("Failed to create note");
-    return { error: "Unable to create note. Please try again later." };
+    console.error('Failed to create note');
+    return { error: 'Unable to create note. Please try again later.' };
   }
 
   redirect(`/notes/${id}`);
@@ -179,7 +172,7 @@ export type Note = {
   title: string;
   content_json: string;
   is_shared: number;
-  share_slug: string | null;
+  shared_slug: string | null;
   created_at: number;
   updated_at: number;
 };
@@ -209,17 +202,11 @@ export async function getNoteById(id: string): Promise<Note | null> {
 }
 
 const updateNoteSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(255, "Title must be 255 characters or less"),
-  contentJson: z.string().max(1_000_000, "Note content is too large"),
+  title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or less'),
+  contentJson: z.string().max(1_000_000, 'Note content is too large'),
 });
 
-export async function updateNote(
-  id: string,
-  data: { title: string; contentJson: string },
-) {
+export async function updateNote(id: string, data: { title: string; contentJson: string }) {
   const session = await requireAuth();
 
   const parsed = updateNoteSchema.safeParse(data);
@@ -232,7 +219,7 @@ export async function updateNote(
   // Validate TipTap JSON structure
   const tipTapResult = parseTipTapContent(contentJson);
   if (!tipTapResult.valid) {
-    return { error: "Invalid note content format. Please try again." };
+    return { error: 'Invalid note content format. Please try again.' };
   }
 
   const sanitizedContent = JSON.stringify(tipTapResult.content);
@@ -251,8 +238,8 @@ export async function updateNote(
       };
     }
   } catch {
-    console.error("Failed to update note");
-    return { error: "Unable to update note. Please try again later." };
+    console.error('Failed to update note');
+    return { error: 'Unable to update note. Please try again later.' };
   }
 
   redirect(`/notes/${id}`);
@@ -273,9 +260,57 @@ export async function deleteNote(id: string) {
       };
     }
   } catch {
-    console.error("Failed to delete note");
-    return { error: "Unable to delete note. Please try again later." };
+    console.error('Failed to delete note');
+    return { error: 'Unable to delete note. Please try again later.' };
   }
 
-  redirect("/notes");
+  redirect('/notes');
+}
+
+export async function toggleShare(id: string) {
+  const session = await requireAuth();
+
+  // Get current note state
+  const getStmt = db.prepare('SELECT is_shared FROM notes WHERE id = ? AND user_id = ?');
+  const note = getStmt.get(id, session.user.id) as { is_shared: number } | undefined;
+
+  if (!note) {
+    return { error: "Note not found or you don't have permission." };
+  }
+
+  const now = Date.now();
+
+  if (note.is_shared) {
+    // Turn off sharing
+    const stmt = db.prepare(`
+      UPDATE notes SET is_shared = 0, shared_slug = NULL, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+    stmt.run(now, id, session.user.id);
+    return { is_shared: false, shared_slug: null };
+  } else {
+    // Turn on sharing with new slug
+    const slug = crypto.randomUUID().slice(0, 12);
+    const stmt = db.prepare(`
+      UPDATE notes SET is_shared = 1, shared_slug = ?, updated_at = ?
+      WHERE id = ? AND user_id = ?
+    `);
+    stmt.run(slug, now, id, session.user.id);
+    return { is_shared: true, shared_slug: slug };
+  }
+}
+
+export type SharedNote = {
+  title: string;
+  content_json: string;
+};
+
+export async function getSharedNote(slug: string): Promise<SharedNote | null> {
+  const stmt = db.prepare(`
+    SELECT title, content_json FROM notes
+    WHERE shared_slug = ? AND is_shared = 1
+  `);
+
+  const note = stmt.get(slug) as SharedNote | undefined;
+  return note ?? null;
 }

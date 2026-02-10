@@ -32,6 +32,7 @@ export default async function NoteEditorPage({ params }: { params: Params }) {
 **Status:** Open
 
 The page displays the note ID but never queries the database to check if:
+
 - The note exists
 - The user owns the note
 - The note content is fetched securely
@@ -51,6 +52,7 @@ BETTER_AUTH_SECRET=thisissupersecureandmustbe32charsorlongerotherwisewegetanerro
 ```
 
 **Issues:**
+
 - This appears to be a placeholder/example secret
 - Should never be committed to version control
 - Should be randomly generated per deployment
@@ -68,7 +70,7 @@ BETTER_AUTH_SECRET=thisissupersecureandmustbe32charsorlongerotherwisewegetanerro
 The shared note page directly renders the `slug` parameter in the HTML without sanitization:
 
 ```tsx
-<h1 className="text-2xl font-bold">Shared Note - {slug}</h1>
+<h1 className='text-2xl font-bold'>Shared Note - {slug}</h1>
 ```
 
 While Next.js escapes basic HTML by default, this pattern is risky.
@@ -84,7 +86,7 @@ While Next.js escapes basic HTML by default, this pattern is risky.
 Same issue as above - the note `id` is directly rendered:
 
 ```tsx
-<h1 className="text-2xl font-bold">Note Editor - {id}</h1>
+<h1 className='text-2xl font-bold'>Note Editor - {id}</h1>
 ```
 
 ---
@@ -120,6 +122,7 @@ While Next.js Server Actions have some built-in protections, there's no explicit
 **Status:** Open
 
 There's no rate limiting on sign-in/sign-up attempts, allowing:
+
 - Brute force password attacks
 - Account enumeration
 - DoS via resource exhaustion
@@ -163,7 +166,7 @@ Sessions may persist indefinitely without explicit expiration settings.
 The notes list page calls `requireAuth()` but never fetches the user's notes from the database:
 
 ```tsx
-<p className="text-gray-600">Your notes will appear here</p>
+<p className='text-gray-600'>Your notes will appear here</p>
 // No database query to fetch user's notes
 ```
 
@@ -188,6 +191,7 @@ The notes list page calls `requireAuth()` but never fetches the user's notes fro
 **Status:** Open
 
 Only `createNote` is implemented. Missing actions per SPEC.md:
+
 - `updateNote(id, content)`
 - `deleteNote(id)`
 - `toggleShare(id)`
@@ -203,6 +207,7 @@ Only `createNote` is implemented. Missing actions per SPEC.md:
 **Status:** Open
 
 The shared note page is a placeholder that doesn't:
+
 - Query the database for the note by slug
 - Check if the note is actually shared (`is_shared = 1`)
 - Display the note content
@@ -228,8 +233,8 @@ The `NoteForm` and `AuthPage` components handle errors in state, but there's no 
 
 ```typescript
 async function handleLogout() {
-  await authClient.signOut();  // No error handling
-  router.push("/auth");
+  await authClient.signOut(); // No error handling
+  router.push('/auth');
 }
 ```
 
@@ -249,22 +254,22 @@ After successful login, using `router.push` without `router.refresh()` may show 
 
 ## Summary
 
-| # | Issue | Severity | Status |
-|---|-------|----------|--------|
-| 1 | Missing ownership validation | CRITICAL | Open |
-| 2 | No DB query for note | CRITICAL | Open |
-| 3 | Hardcoded secret | CRITICAL | Open |
-| 4 | XSS via slug reflection | HIGH | Open |
-| 5 | XSS via ID reflection | HIGH | Open |
-| 6 | Missing TipTap sanitization | HIGH | **FIXED** |
-| 7 | No CSRF protection | MEDIUM | Open |
-| 8 | No rate limiting | MEDIUM | Open |
-| 9 | No trusted origins | MEDIUM | Open |
-| 10 | No session expiration | LOW | Open |
-| 11 | Notes list incomplete | HIGH | Open |
-| 12 | DB path mismatch | MEDIUM | **FIXED** |
-| 13 | Missing server actions | HIGH | Open |
-| 14 | Shared page incomplete | HIGH | Open |
-| 15 | No error boundary | MEDIUM | Open |
-| 16 | Logout error handling | LOW | Open |
-| 17 | Router cache stale | LOW | Open |
+| #   | Issue                        | Severity | Status    |
+| --- | ---------------------------- | -------- | --------- |
+| 1   | Missing ownership validation | CRITICAL | Open      |
+| 2   | No DB query for note         | CRITICAL | Open      |
+| 3   | Hardcoded secret             | CRITICAL | Open      |
+| 4   | XSS via slug reflection      | HIGH     | Open      |
+| 5   | XSS via ID reflection        | HIGH     | Open      |
+| 6   | Missing TipTap sanitization  | HIGH     | **FIXED** |
+| 7   | No CSRF protection           | MEDIUM   | Open      |
+| 8   | No rate limiting             | MEDIUM   | Open      |
+| 9   | No trusted origins           | MEDIUM   | Open      |
+| 10  | No session expiration        | LOW      | Open      |
+| 11  | Notes list incomplete        | HIGH     | Open      |
+| 12  | DB path mismatch             | MEDIUM   | **FIXED** |
+| 13  | Missing server actions       | HIGH     | Open      |
+| 14  | Shared page incomplete       | HIGH     | Open      |
+| 15  | No error boundary            | MEDIUM   | Open      |
+| 16  | Logout error handling        | LOW      | Open      |
+| 17  | Router cache stale           | LOW      | Open      |

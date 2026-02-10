@@ -1,6 +1,6 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "./auth";
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { auth } from './auth';
 
 export async function getSession() {
   return auth.api.getSession({
@@ -11,7 +11,7 @@ export async function getSession() {
 export async function requireAuth() {
   const session = await getSession();
   if (!session) {
-    redirect("/auth");
+    redirect('/auth');
   }
   return session;
 }
